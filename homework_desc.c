@@ -4,7 +4,9 @@
 
 
 int main(void){
-   printg("Hello");
+   printf("Hello");
+
+   printf("Goodbye");
 
     return 0;
 }
