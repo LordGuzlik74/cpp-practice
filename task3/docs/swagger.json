@@ -1,0 +1,139 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "HTTP API для загрузки фильмов с внешнего стенда.",
+        "title": "Movie Stand Proxy API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/last-movie": {
+            "get": {
+                "description": "Ищет фильм с максимальным ID на внешнем стенде (экспоненциальный + бинарный поиск)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Получить последний фильм",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/task3_internal_models.Movie"
+                        }
+                    },
+                    "404": {
+                        "description": "Фильмы не найдены",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "502": {
+                        "description": "Ошибка внешнего стенда",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "504": {
+                        "description": "Таймаут внешнего стенда",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/load-movies": {
+            "get": {
+                "description": "Параллельно загружает фильмы со стенда по диапазону ID [from; to]",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movies"
+                ],
+                "summary": "Загрузить диапазон фильмов",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Начальный ID фильма (\u003e= 1)",
+                        "name": "from",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Конечный ID фильма (\u003e= from)",
+                        "name": "to",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/task3_internal_models.LoadMoviesResult"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректные параметры from или to",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "task3_internal_models.LoadMoviesResult": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/task3_internal_models.MovieError"
+                    }
+                },
+                "movies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/task3_internal_models.Movie"
+                    }
+                }
+            }
+        },
+        "task3_internal_models.Movie": {
+            "type": "object",
+            "properties": {
+                "director": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "task3_internal_models.MovieError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}
