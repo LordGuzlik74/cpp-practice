@@ -1,0 +1,92 @@
+basePath: /
+definitions:
+  task3_internal_models.LoadMoviesResult:
+    properties:
+      errors:
+        items:
+          $ref: '#/definitions/task3_internal_models.MovieError'
+        type: array
+      movies:
+        items:
+          $ref: '#/definitions/task3_internal_models.Movie'
+        type: array
+    type: object
+  task3_internal_models.Movie:
+    properties:
+      director:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      year:
+        type: integer
+    type: object
+  task3_internal_models.MovieError:
+    properties:
+      error:
+        type: string
+      id:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: HTTP API для загрузки фильмов с внешнего стенда.
+  title: Movie Stand Proxy API
+  version: "1.0"
+paths:
+  /last-movie:
+    get:
+      description: Ищет фильм с максимальным ID на внешнем стенде (экспоненциальный
+        + бинарный поиск)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/task3_internal_models.Movie'
+        "404":
+          description: Фильмы не найдены
+          schema:
+            type: string
+        "502":
+          description: Ошибка внешнего стенда
+          schema:
+            type: string
+        "504":
+          description: Таймаут внешнего стенда
+          schema:
+            type: string
+      summary: Получить последний фильм
+      tags:
+      - movies
+  /load-movies:
+    get:
+      description: Параллельно загружает фильмы со стенда по диапазону ID [from; to]
+      parameters:
+      - description: Начальный ID фильма (>= 1)
+        in: query
+        name: from
+        required: true
+        type: integer
+      - description: Конечный ID фильма (>= from)
+        in: query
+        name: to
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/task3_internal_models.LoadMoviesResult'
+        "400":
+          description: Некорректные параметры from или to
+          schema:
+            type: string
+      summary: Загрузить диапазон фильмов
+      tags:
+      - movies
+swagger: "2.0"
